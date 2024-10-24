@@ -14,6 +14,8 @@ pip install git+https://github.com/openai/whisper.git
 add your gemini key at
 /backend/main.py : Line 25
 and in .env file in /vidiwise
+
+get gemini key through https://aistudio.google.com/
 ```
 
 python app/main.py
