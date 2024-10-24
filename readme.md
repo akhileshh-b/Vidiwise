@@ -1,5 +1,4 @@
-cd vidiwise
-cd backend
+cd vidiwise/backend
 
 python -m venv
 venv/Scripts/activate
@@ -20,5 +19,6 @@ python app/main.py
 
 
 terminal 2:
+cd vidiwise/frontend
 npm install
 npm start
