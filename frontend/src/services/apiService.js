@@ -1,4 +1,5 @@
-const API_BASE_URL = 'http://localhost:8080';
+// Dynamic API URL based on environment
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 class ApiService {
   // Process a video URL

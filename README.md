@@ -31,9 +31,9 @@ cp .env.example .env
 1. **Groq API Key** (FREE): Get from [console.groq.com](https://console.groq.com)
    - Used for speech-to-text transcription
    - Free tier: 14,400 requests/day
-2. **Gemini API Key**: Get from [aistudio.google.com](https://aistudio.google.com/)
+2. **Gemini API Key** (FREE): Get from [aistudio.google.com](https://aistudio.google.com/)
    - Used for AI chat functionality
-   - Add to `/backend/app/main.py` Line 25 (or use environment variable)
+   - Free tier: Generous usage limits
 
 ```bash
 # Run the backend server

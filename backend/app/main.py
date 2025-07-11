@@ -19,11 +19,25 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # Check for required environment variables
-if not os.getenv("GROQ_API_KEY"):
-    logger.warning("GROQ_API_KEY not found in environment variables. STT functionality will fail.")
+required_env_vars = ["GROQ_API_KEY", "GEMINI_API_KEY"]
+missing_vars = []
+
+for var in required_env_vars:
+    if not os.getenv(var):
+        missing_vars.append(var)
+
+if missing_vars:
+    logger.error(f"Missing required environment variables: {', '.join(missing_vars)}")
+    logger.error("Please set up your .env file with the required API keys.")
+    logger.error("See .env.example for reference.")
 
 video_service = VideoService()
-gemini_chatbot = GeminiChatbot("AIzaSyDscr1FTa9wYy5yhob0vBw30rRXuOlxgaE")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
+if not gemini_api_key:
+    logger.error("GEMINI_API_KEY not found. AI chat functionality will fail.")
+    gemini_api_key = "dummy_key"  # Prevent crashes during development
+
+gemini_chatbot = GeminiChatbot(gemini_api_key)
 
 app.add_middleware(
     CORSMiddleware,

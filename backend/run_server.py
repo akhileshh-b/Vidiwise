@@ -26,7 +26,7 @@ if env_file.exists():
                 print(f"Set {key}=***")
 
 # Check for required environment variables
-required_vars = ["GROQ_API_KEY"]
+required_vars = ["GROQ_API_KEY", "GEMINI_API_KEY"]
 missing_vars = []
 
 for var in required_vars:
@@ -39,6 +39,7 @@ if missing_vars:
     print("1. Copy .env.example to .env")
     print("2. Edit .env and add your API keys")
     print("3. Get Groq API key (FREE) from: https://console.groq.com")
+    print("4. Get Gemini API key (FREE) from: https://aistudio.google.com")
     sys.exit(1)
 
 print("\n✅ All environment variables loaded successfully!")
@@ -49,4 +50,11 @@ if __name__ == "__main__":
     import uvicorn
     # Change to app directory and run with correct module path
     os.chdir(app_dir)
-    uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True) 
+    
+    # Get port from environment (Render sets this automatically)
+    port = int(os.getenv("PORT", 8080))
+    
+    # Disable reload in production
+    reload = os.getenv("RENDER") is None  # Render sets this env var
+    
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=reload) 

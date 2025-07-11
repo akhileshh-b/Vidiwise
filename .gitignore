@@ -115,4 +115,8 @@ firebase-debug.log
 # API Keys (backup safety)
 **/api_keys.py
 **/secrets.py
-**/config/secrets.py 
+**/config/secrets.py
+
+# Ensure no hardcoded API keys slip through
+**/AIzaSy*
+**/*AIzaSy* 

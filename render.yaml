@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: vidiwise-backend
+    env: python
+    buildCommand: |
+      cd backend
+      pip install -r requirements.txt
+    startCommand: |
+      cd backend
+      python run_server.py
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PORT
+        value: 8080
+    disk:
+      name: vidiwise-storage
+      mountPath: /opt/render/project/src/backend/app/video_findings
+      sizeGB: 1
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: .
+    healthCheckPath: /health 
