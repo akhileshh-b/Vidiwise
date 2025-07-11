@@ -330,6 +330,23 @@ class VideoService:
             'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
             'outtmpl': os.path.join(self.current_video_dir, 'video.%(ext)s'),
             'ffmpeg_location': self.ffmpeg_path,
+            # Add headers to avoid bot detection
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-us,en;q=0.5',
+                'Accept-Encoding': 'gzip,deflate',
+                'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
+                'Keep-Alive': '300',
+                'Connection': 'keep-alive'
+            },
+            # Additional options to avoid detection
+            'extractor_retries': 3,
+            'fragment_retries': 3,
+            'sleep_interval': 1,
+            'max_sleep_interval': 5,
+            # Try different extraction methods
+            'youtube_include_dash_manifest': False,
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
