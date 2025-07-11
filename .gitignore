@@ -119,4 +119,14 @@ firebase-debug.log
 
 # Ensure no hardcoded API keys slip through
 **/AIzaSy*
-**/*AIzaSy* 
+**/*AIzaSy*
+**/gsk_*
+**/*gsk_*
+
+# Additional .env files to exclude
+**/.env
+**/.env.local
+**/.env.development
+**/.env.production
+frontend/.env
+backend/.env 
