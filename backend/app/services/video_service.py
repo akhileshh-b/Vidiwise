@@ -327,7 +327,7 @@ class VideoService:
             self.create_unique_folder(url)
             
         ydl_opts = {
-            'format': 'worst[ext=mp4]/worst',  # Use worst quality to avoid detection
+            'format': 'worst[height<=480]/worst[height<=720]/worst',  # Progressive fallback
             'outtmpl': os.path.join(self.current_video_dir, 'video.%(ext)s'),
             'ffmpeg_location': self.ffmpeg_path,
             # Aggressive anti-detection measures
@@ -358,20 +358,58 @@ class VideoService:
         }
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                logger.info("Attempting to extract video info and download...")
                 info = ydl.extract_info(url, download=True)
-                filename = os.path.join(self.current_video_dir, 'video.mp4')
-            return filename
+                
+                # Check multiple possible file extensions
+                possible_files = [
+                    os.path.join(self.current_video_dir, 'video.mp4'),
+                    os.path.join(self.current_video_dir, 'video.webm'),
+                    os.path.join(self.current_video_dir, 'video.mkv'),
+                ]
+                
+                # Find the actual downloaded file
+                downloaded_file = None
+                for file_path in possible_files:
+                    if os.path.exists(file_path):
+                        downloaded_file = file_path
+                        logger.info(f"Found downloaded video: {file_path}")
+                        break
+                
+                # Check if any video file was downloaded
+                if not downloaded_file:
+                    # List all files in the directory to see what was actually downloaded
+                    if os.path.exists(self.current_video_dir):
+                        files = os.listdir(self.current_video_dir)
+                        logger.error(f"No expected video file found. Files in directory: {files}")
+                        
+                        # Look for any video file
+                        video_extensions = ['.mp4', '.webm', '.mkv', '.avi', '.mov']
+                        for file in files:
+                            if any(file.endswith(ext) for ext in video_extensions):
+                                downloaded_file = os.path.join(self.current_video_dir, file)
+                                logger.info(f"Found alternative video file: {downloaded_file}")
+                                break
+                
+                if not downloaded_file:
+                    raise Exception("Video download failed - no video file was created. This video may be restricted or unavailable.")
+                
+                return downloaded_file
+                
         except Exception as e:
             error_msg = str(e)
+            logger.error(f"Download error: {error_msg}")
+            
             if "Sign in to confirm you're not a bot" in error_msg or "429" in error_msg:
-                logger.error("YouTube bot detection triggered. This is common with cloud hosting.")
-                logger.error("Possible solutions:")
-                logger.error("1. Try a different video (older/educational content works better)")
-                logger.error("2. Use a different hosting provider")
-                logger.error("3. Implement cookie-based authentication")
-                raise Exception("YouTube blocked this request due to bot detection. Try a different video or hosting provider.")
+                logger.error("YouTube bot detection triggered.")
+                raise Exception("YouTube blocked this request due to bot detection. Try a different video.")
+            elif "Failed to extract any player response" in error_msg:
+                logger.error("YouTube API structure changed - yt-dlp needs updating.")
+                raise Exception("YouTube API error - this video cannot be processed right now. Try a different video or wait for system updates.")
+            elif "Private video" in error_msg or "unavailable" in error_msg:
+                raise Exception("This video is private, unavailable, or restricted.")
             else:
-                raise e
+                raise Exception(f"Video download failed: {error_msg}")
 
     def perform_ocr(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
