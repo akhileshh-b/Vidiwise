@@ -238,6 +238,20 @@ async def start_chat(request: ChatRequest):
 async def health_check():
     return {"status": "OK"}
 
+@app.get("/test-youtube-access")
+async def test_youtube_access():
+    """Test if YouTube access is working from this server."""
+    import requests
+    try:
+        # Simple test to check if we can access YouTube
+        response = requests.get("https://www.youtube.com", timeout=10)
+        if response.status_code == 200:
+            return {"youtube_accessible": True, "status": "YouTube is reachable"}
+        else:
+            return {"youtube_accessible": False, "status": f"YouTube returned {response.status_code}"}
+    except Exception as e:
+        return {"youtube_accessible": False, "status": f"Cannot reach YouTube: {str(e)}"}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)

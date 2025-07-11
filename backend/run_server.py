@@ -50,11 +50,4 @@ if __name__ == "__main__":
     import uvicorn
     # Change to app directory and run with correct module path
     os.chdir(app_dir)
-    
-    # Get port from environment (Render sets this automatically)
-    port = int(os.getenv("PORT", 8080))
-    
-    # Disable reload in production
-    reload = os.getenv("RENDER") is None  # Render sets this env var
-    
-    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=reload) 
+    uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True) 

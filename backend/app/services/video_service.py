@@ -327,31 +327,51 @@ class VideoService:
             self.create_unique_folder(url)
             
         ydl_opts = {
-            'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+            'format': 'worst[ext=mp4]/worst',  # Use worst quality to avoid detection
             'outtmpl': os.path.join(self.current_video_dir, 'video.%(ext)s'),
             'ffmpeg_location': self.ffmpeg_path,
-            # Add headers to avoid bot detection
+            # Aggressive anti-detection measures
             'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-us,en;q=0.5',
-                'Accept-Encoding': 'gzip,deflate',
-                'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-                'Keep-Alive': '300',
-                'Connection': 'keep-alive'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': '*/*',
+                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Encoding': 'gzip, deflate, br',
+                'Connection': 'keep-alive',
+                'Sec-Fetch-Dest': 'empty',
+                'Sec-Fetch-Mode': 'cors',
+                'Sec-Fetch-Site': 'same-origin',
             },
-            # Additional options to avoid detection
-            'extractor_retries': 3,
-            'fragment_retries': 3,
-            'sleep_interval': 1,
-            'max_sleep_interval': 5,
-            # Try different extraction methods
+            # Retry and timing options
+            'extractor_retries': 5,
+            'fragment_retries': 5,
+            'retries': 5,
+            'sleep_interval': 2,
+            'max_sleep_interval': 10,
+            # YouTube specific options
             'youtube_include_dash_manifest': False,
+            'youtube_include_hls_manifest': False,
+            'extract_flat': False,
+            # Bypass age restrictions and other checks
+            'age_limit': 18,
+            'ignoreerrors': True,
+            'no_warnings': True,
         }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            filename = os.path.join(self.current_video_dir, 'video.mp4')
-        return filename
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(url, download=True)
+                filename = os.path.join(self.current_video_dir, 'video.mp4')
+            return filename
+        except Exception as e:
+            error_msg = str(e)
+            if "Sign in to confirm you're not a bot" in error_msg or "429" in error_msg:
+                logger.error("YouTube bot detection triggered. This is common with cloud hosting.")
+                logger.error("Possible solutions:")
+                logger.error("1. Try a different video (older/educational content works better)")
+                logger.error("2. Use a different hosting provider")
+                logger.error("3. Implement cookie-based authentication")
+                raise Exception("YouTube blocked this request due to bot detection. Try a different video or hosting provider.")
+            else:
+                raise e
 
     def perform_ocr(self, frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
