@@ -1,7 +1,7 @@
 # VidiWise - AI-Powered YouTube Video Analysis
-## Video Demo
-https://youtu.be/oMrTBRdSBio?si=Kt-dYAx5QSNZgl5R
-[![Watch the video](https://img.youtube.com/vi/oMrTBRdSBio/0.jpg)](https://youtu.be/oMrTBRdSBio?si=Kt-dYAx5QSNZgl5R)
+## Video Demonstration
+
+[Watch the Demo](https://youtu.be/oMrTBRdSBio?si=Kt-dYAx5QSNZgl5R)
 
 ## Setup Instructions
 
